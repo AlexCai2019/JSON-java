@@ -6,9 +6,9 @@ Public Domain.
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Set;
 
 import static org.json.NumberConversionUtil.potentialNumber;
 import static org.json.NumberConversionUtil.stringToNumber;
@@ -182,20 +182,21 @@ public class XML {
         StringBuilder sb = new StringBuilder(string.length());
         for (int i = 0, length = string.length(); i < length; i++) {
             char c = string.charAt(i);
-            if (c == '&') {
-                final int semic = string.indexOf(';', i);
-                if (semic > i) {
-                    final String entity = string.substring(i + 1, semic);
-                    sb.append(XMLTokener.unescapeEntity(entity));
-                    // skip past the entity we just parsed.
-                    i += entity.length() + 1;
-                } else {
-                    // this shouldn't happen in most cases since the parser
-                    // errors on unclosed entries.
-                    sb.append(c);
-                }
-            } else {
+            if (c != '&') {
                 // not part of an entity
+                sb.append(c);
+                continue;
+            }
+            // c == '&'
+            final int semic = string.indexOf(';', i);
+            if (semic > i) {
+                final String entity = string.substring(i + 1, semic);
+                sb.append(XMLTokener.unescapeEntity(entity));
+                // skip past the entity we just parsed.
+                i += entity.length() + 1;
+            } else {
+                // this shouldn't happen in most cases since the parser
+                // errors on unclosed entries.
                 sb.append(c);
             }
         }
@@ -453,7 +454,7 @@ public class XML {
      * @return JSON value of this string or the string
      */
     public static Object stringToValue(String string, XMLXsiTypeConverter<?> typeConverter) {
-        if(typeConverter != null) {
+        if (typeConverter != null) {
             return typeConverter.convert(string);
         }
         return stringToValue(string);
@@ -566,7 +567,7 @@ public class XML {
      * @throws JSONException Thrown if there is an errors while parsing the string
      */
     public static JSONObject toJSONObject(Reader reader, boolean keepStrings) throws JSONException {
-        if(keepStrings) {
+        if (keepStrings) {
             return toJSONObject(reader, XMLParserConfiguration.KEEP_STRINGS);
         }
         return toJSONObject(reader, XMLParserConfiguration.ORIGINAL);
@@ -597,7 +598,7 @@ public class XML {
         XMLTokener x = new XMLTokener(reader);
         while (x.more()) {
             x.skipPast("<");
-            if(x.more()) {
+            if (x.more()) {
                 parse(x, jo, null, config, 0);
             }
         }
@@ -712,8 +713,8 @@ public class XML {
      *            The number of spaces to add to each level of indentation.
      * @param indent
      *            The current ident level in spaces.
-     * @return
-     * @throws JSONException
+     * @return A string.
+     * @throws JSONException Thrown if there is an error parsing the string
      */
     private static String toString(final Object object, final String tagName, final XMLParserConfiguration config, int indentFactor, int indent)
             throws JSONException {
@@ -726,11 +727,11 @@ public class XML {
 
             // Emit <tagName>
             if (tagName != null) {
-                sb.append(indent(indent));
-                sb.append('<');
-                sb.append(tagName);
-                sb.append('>');
-                if(indentFactor > 0){
+                sb.append(indent(indent))
+                    .append('<')
+                    .append(tagName)
+                    .append('>');
+                if (indentFactor > 0) {
                     sb.append("\n");
                     indent += indentFactor;
                 }
@@ -739,7 +740,8 @@ public class XML {
             // Loop thru the keys.
             // don't use the new entrySet accessor to maintain Android Support
             jo = (JSONObject) object;
-            for (final String key : jo.keySet()) {
+            Set<String> joKeySet = jo.keySet();
+            for (final String key : joKeySet) {
                 Object value = jo.opt(key);
                 if (value == null) {
                     value = "";
@@ -773,37 +775,33 @@ public class XML {
 					for (int i = 0; i < jaLength; i++) {
                         Object val = ja.opt(i);
                         if (val instanceof JSONArray) {
-                            sb.append('<');
-                            sb.append(key);
-                            sb.append('>');
-                            sb.append(toString(val, null, config, indentFactor, indent));
-                            sb.append("</");
-                            sb.append(key);
-                            sb.append('>');
+                            sb.append('<')
+                                .append(key)
+                                .append('>')
+                                .append(toString(val, null, config, indentFactor, indent))
+                                .append("</")
+                                .append(key)
+                                .append('>');
                         } else {
                             sb.append(toString(val, key, config, indentFactor, indent));
                         }
                     }
                 } else if ("".equals(value)) {
                     if (config.isCloseEmptyTag()){
-                        sb.append(indent(indent));
-                        sb.append('<');
-                        sb.append(key);
-                        sb.append(">");
-                        sb.append("</");
-                        sb.append(key);
-                        sb.append(">");
-                        if (indentFactor > 0) {
-                            sb.append("\n");
-                        }
-                    }else {
-                        sb.append(indent(indent));
-                        sb.append('<');
-                        sb.append(key);
-                        sb.append("/>");
-                        if (indentFactor > 0) {
-                            sb.append("\n");
-                        }
+                        sb.append(indent(indent))
+                            .append('<')
+                            .append(key)
+                            .append("></")
+                            .append(key)
+                            .append('>');
+                    } else {
+                        sb.append(indent(indent))
+                            .append('<')
+                            .append(key)
+                            .append("/>");
+                    }
+                    if (indentFactor > 0) {
+                        sb.append('\n');
                     }
 
                     // Emit a new tag <k>
@@ -815,11 +813,11 @@ public class XML {
             if (tagName != null) {
 
                 // Emit the </tagName> close tag
-                sb.append(indent(indent - indentFactor));
-                sb.append("</");
-                sb.append(tagName);
-                sb.append('>');
-                if(indentFactor > 0){
+                sb.append(indent(indent - indentFactor))
+                    .append("</")
+                    .append(tagName)
+                    .append('>');
+                if (indentFactor > 0){
                     sb.append("\n");
                 }
             }
@@ -828,11 +826,7 @@ public class XML {
         }
 
         if (object != null && (object instanceof JSONArray ||  object.getClass().isArray())) {
-            if(object.getClass().isArray()) {
-                ja = new JSONArray(object);
-            } else {
-                ja = (JSONArray) object;
-            }
+            ja = object.getClass().isArray() ? new JSONArray(object) : (JSONArray) object;
             int jaLength = ja.length();
             // don't use the new iterator API to maintain support for Android
 			for (int i = 0; i < jaLength; i++) {
@@ -848,9 +842,9 @@ public class XML {
 
         string = (object == null) ? "null" : escape(object.toString());
 
-        if(tagName == null){
+        if (tagName == null) {
             return indent(indent) + "\"" + string + "\"" + ((indentFactor > 0) ? "\n" : "");
-        } else if(string.length() == 0){
+        } else if (string.isEmpty()) {
             return indent(indent) + "<" + tagName + "/>" + ((indentFactor > 0) ? "\n" : "");
         } else {
             return indent(indent) + "<" + tagName
@@ -912,14 +906,12 @@ public class XML {
      *
      * @param indent
      *          The number of spaces to be appended to the String.
-     * @return
+     * @return a String consisting of a number of space characters specified by indent
      */
-    private static final String indent(int indent) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < indent; i++) {
-            sb.append(' ');
-        }
-        return sb.toString();
+    private static String indent(int indent) {
+        char[] spaces = new char[indent];
+        Arrays.fill(spaces, ' ');
+        return new String(spaces);
     }
 
 }
