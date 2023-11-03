@@ -104,7 +104,7 @@ public class JSONML {
                             }
                         } else if (c == '[') {
                             token = x.nextToken();
-                            if (token.equals("CDATA") && x.next() == '[') {
+                            if ("CDATA".equals(token) && x.next() == '[') {
                                 if (ja != null) {
                                     ja.put(x.nextCDATA());
                                 }
@@ -168,7 +168,7 @@ public class JSONML {
 // attribute = value
 
                         attribute = (String)token;
-                        if (!arrayForm && ("tagName".equals(attribute) || "childNode".equals(attribute))) {
+                        if (!arrayForm && (attribute.equals("tagName") || attribute.equals("childNode"))) {
                             throw x.syntaxError("Reserved attribute.");
                         }
                         token = x.nextToken();

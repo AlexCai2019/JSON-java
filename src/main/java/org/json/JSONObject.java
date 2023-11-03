@@ -166,7 +166,7 @@ public class JSONObject {
     public JSONObject() {
         // HashMap is used on purpose to ensure that elements are unordered by
         // the specification.
-        // JSON tends to be a portable transfer format to allows the container
+        // JSON tends to be a portable transfer format to allow the container
         // implementations to rearrange their items for a faster element
         // retrieval based on associative access.
         // Therefore, an implementation mustn't rely on the order of the item.
@@ -610,13 +610,11 @@ public class JSONObject {
      */
     public boolean getBoolean(String key) throws JSONException {
         Object object = this.get(key);
-        if (object.equals(Boolean.FALSE)
-                || (object instanceof String && ((String) object)
-                        .equalsIgnoreCase("false"))) {
+        if (Boolean.FALSE.equals(object)
+                || (object instanceof String && "false".equalsIgnoreCase((String) object))) {
             return false;
-        } else if (object.equals(Boolean.TRUE)
-                || (object instanceof String && ((String) object)
-                        .equalsIgnoreCase("true"))) {
+        } else if (Boolean.TRUE.equals(object)
+                || (object instanceof String && "true".equalsIgnoreCase((String) object))) {
             return true;
         }
         throw wrongValueFormatException(key, "Boolean", object, null);
@@ -2571,8 +2569,7 @@ public class JSONObject {
             if (NULL.equals(object)) {
                 return NULL;
             }
-            if (object instanceof JSONObject || object instanceof JSONArray
-                    || NULL.equals(object) || object instanceof JSONString
+            if (object instanceof JSONObject || object instanceof JSONArray || object instanceof JSONString
                     || object instanceof Byte || object instanceof Character
                     || object instanceof Short || object instanceof Integer
                     || object instanceof Long || object instanceof Boolean
@@ -2628,9 +2625,9 @@ public class JSONObject {
     }
 
     @SuppressWarnings("resource")
-    static final Writer writeValue(Writer writer, Object value,
+    static Writer writeValue(Writer writer, Object value,
             int indentFactor, int indent) throws JSONException, IOException {
-        if (value == null || value.equals(null)) {
+        if (value == null) {
             writer.write("null");
         } else if (value instanceof JSONString) {
             Object o;

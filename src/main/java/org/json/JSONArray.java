@@ -259,13 +259,11 @@ public class JSONArray implements Iterable<Object> {
      */
     public boolean getBoolean(int index) throws JSONException {
         Object object = this.get(index);
-        if (object.equals(Boolean.FALSE)
-                || (object instanceof String && ((String) object)
-                        .equalsIgnoreCase("false"))) {
+        if (Boolean.FALSE.equals(object)
+                || (object instanceof String && "false".equalsIgnoreCase((String) object))) {
             return false;
-        } else if (object.equals(Boolean.TRUE)
-                || (object instanceof String && ((String) object)
-                        .equalsIgnoreCase("true"))) {
+        } else if (Boolean.TRUE.equals(object)
+                || (object instanceof String && "true".equalsIgnoreCase((String) object))) {
             return true;
         }
         throw wrongValueFormatException(index, "boolean", object, null);
@@ -283,7 +281,7 @@ public class JSONArray implements Iterable<Object> {
      */
     public double getDouble(int index) throws JSONException {
         final Object object = this.get(index);
-        if(object instanceof Number) {
+        if (object instanceof Number) {
             return ((Number)object).doubleValue();
         }
         try {
@@ -305,7 +303,7 @@ public class JSONArray implements Iterable<Object> {
      */
     public float getFloat(int index) throws JSONException {
         final Object object = this.get(index);
-        if(object instanceof Number) {
+        if (object instanceof Number) {
             return ((Number)object).floatValue();
         }
         try {
@@ -353,7 +351,7 @@ public class JSONArray implements Iterable<Object> {
      */
     public <E extends Enum<E>> E getEnum(Class<E> clazz, int index) throws JSONException {
         E val = optEnum(clazz, index);
-        if(val==null) {
+        if (val==null) {
             // JSONException should really take a throwable argument.
             // If it did, I would re-implement this with the Enum.valueOf
             // method and place any thrown exception in the JSONException
@@ -379,7 +377,7 @@ public class JSONArray implements Iterable<Object> {
     public BigDecimal getBigDecimal (int index) throws JSONException {
         Object object = this.get(index);
         BigDecimal val = JSONObject.objectToBigDecimal(object, null);
-        if(val == null) {
+        if (val == null) {
             throw wrongValueFormatException(index, "BigDecimal", object, null);
         }
         return val;
@@ -398,7 +396,7 @@ public class JSONArray implements Iterable<Object> {
     public BigInteger getBigInteger (int index) throws JSONException {
         Object object = this.get(index);
         BigInteger val = JSONObject.objectToBigInteger(object, null);
-        if(val == null) {
+        if (val == null) {
             throw wrongValueFormatException(index, "BigInteger", object, null);
         }
         return val;
@@ -415,7 +413,7 @@ public class JSONArray implements Iterable<Object> {
      */
     public int getInt(int index) throws JSONException {
         final Object object = this.get(index);
-        if(object instanceof Number) {
+        if (object instanceof Number) {
             return ((Number)object).intValue();
         }
         try {
@@ -473,7 +471,7 @@ public class JSONArray implements Iterable<Object> {
      */
     public long getLong(int index) throws JSONException {
         final Object object = this.get(index);
-        if(object instanceof Number) {
+        if (object instanceof Number) {
             return ((Number)object).longValue();
         }
         try {
